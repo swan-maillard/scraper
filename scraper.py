@@ -105,10 +105,10 @@ def scrape_contacts(driver):
         contact_id = get_id_from_field(row, CONTACT_FIELD)
         contact_link = get_link_from_field(row, CONTACT_FIELD)
 
-        # Société
-        COMPANY_FIELD = 'views-field-field-entreprise';
-        company_name = get_text_from_field(row, COMPANY_FIELD)
-        company_id = get_id_from_field(row, COMPANY_FIELD)
+        # Site
+        SITE_FIELD = 'views-field-field-entreprise';
+        site_name = get_text_from_field(row, SITE_FIELD)
+        site_id = get_id_from_field(row, SITE_FIELD)
 
         # Service
         SERVICE_FIELD = 'views-field-field-service';
@@ -123,9 +123,9 @@ def scrape_contacts(driver):
         email = get_text_from_field(row, EMAIL_FIELD)
 
         # Store the data
-        data_list.append([contact_id, contact_name, company_id, company_name, service, functions, email])
+        data_list.append([contact_id, contact_name, site_id, site_name, service, functions, email])
 
-    return data_list, ['ID', 'Contact', 'ID Société', 'Société', 'Service', 'Fonctions', 'Courriel']
+    return data_list, ['ID', 'Contact', 'ID Site', 'Site', 'Service', 'Fonctions', 'Courriel']
 
 # General function to scrape all pages, with scrape_page passed as an argument
 def scrape_all_pages(driver, page_info):
