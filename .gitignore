@@ -1,5 +1,5 @@
 __pycache__
 .venv
-scraped_data
+scraped_data/*.csv
 .git
 chromedriver.exe

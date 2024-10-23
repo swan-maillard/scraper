@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sociétés</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Sociétés</h1>
+
+    <div class="search-fields">
+        <input type="text" id="contact-search-company" data-search-index="0" placeholder="Rechercher par société...">
+        <input type="text" id="contact-search-city" data-search-index="3" placeholder="Rechercher par ville...">
+        <input type="text" id="contact-search-country" data-search-index="5" placeholder="Rechercher par pays...">
+        <input type="text" id="contact-search-activity" data-search-index="9" placeholder="Rechercher par secteur d'activité...">
+    </div>
+    <div id="table-container">
+       <table border="1" id="companies-table">
+        <thead>
+            <tr>
+                <th>Société</th>
+                <th>Adresse</th>
+                <th>Code Postal</th>
+                <th>Ville</th>
+                <th>Cedex</th>
+                <th>Pays</th>
+                <th>Courriel</th>
+                <th>Site Web</th>
+                <th>Dirigeant</th>
+                <th>Secteur Activité</th>
+                <th>Code NAF</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table> 
+    </div>
+    
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
