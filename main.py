@@ -54,7 +54,8 @@ if option == 'all':
         print(f"Scraping: {page_info['name']}")
         scrape_all_pages(driver, page_info)
 else:
-    for index in option:
+    pages = option.split(',')
+    for index in pages:
         try:
             idx = int(index) - 1
             page_info = PAGES[idx]

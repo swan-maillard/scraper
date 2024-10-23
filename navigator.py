@@ -5,6 +5,7 @@ from selenium.webdriver.common.keys import Keys
 
 
 def connect_to_sso(driver, sso_url, username, password):
+    print("Connection to SSO")
     driver.get(sso_url)
 
     username_input = driver.find_element(By.ID, 'username')
@@ -21,6 +22,8 @@ def handle_active_sessions(driver):
     try:
         # Wait for the session page to appear
         WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.ID, "edit-session-reference")))
+
+        print("Disconnecting an older session (too many active sessions)")
         
         # Find all radio buttons for session selection
         session_options = driver.find_elements(By.CSS_SELECTOR, 'input[name="session_reference"]')
@@ -44,6 +47,7 @@ def handle_active_sessions(driver):
 
 # Scrape the page with session handling retry
 def navigate_with_session_handling(driver, url):
+    trials = 3
     while True:
         driver.get(url)
         
@@ -53,4 +57,6 @@ def navigate_with_session_handling(driver, url):
         
         # Check if we're on the session page
         if not handle_active_sessions(driver):
-            return False
+            trials -= 1
+            if trials == 0: return False
+            continue

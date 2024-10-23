@@ -3,7 +3,7 @@ import pandas as pd
 # Utility to safely extract text from a tag
 def get_text_from_tag(tag):
     if tag:
-        return tag.get_text().strip()
+        return tag.get_text().strip().replace('\n', ' ')
     return None
 
 # Utility to safely extract a link from a tag
@@ -12,7 +12,7 @@ def get_link_from_tag(tag):
         return tag.find('a')['href']
     return None
 
-def get_tag_from_field(row, field):
+def get_tag_from_table(row, field):
     return row.find('td', class_=field)
 
 # Utility to safely extract the ID from a link in a field
@@ -23,20 +23,35 @@ def get_id_from_link(link):
     return None
 
 # Utility to extract the ID from a field if it contains a link
-def get_id_from_field(row, field):
-    tag = get_tag_from_field(row, field)
+def get_id_from_table(row, field):
+    tag = get_tag_from_table(row, field)
     link = get_link_from_tag(tag)
     return get_id_from_link(link)
 
 # Utility to extract text from a field
-def get_text_from_field(row, field):
-    tag = get_tag_from_field(row, field)
+def get_text_from_table(row, field):
+    tag = get_tag_from_table(row, field)
     return get_text_from_tag(tag)
 
 # Utility to extract a link from a field
-def get_link_from_field(row, field):
-    tag = get_tag_from_field(row, field)
+def get_link_from_table(row, field):
+    tag = get_tag_from_table(row, field)
     return get_link_from_tag(tag)
+
+# Utility function to extract text from sections
+def get_text_from_section(soup, field_class):
+    section = soup.select_one(f'section.{field_class} .field-item')
+    if section:
+        return section.get_text().strip().replace('\n', ' ') 
+    return None
+
+# Utility function to extract id from sections
+def get_id_from_section(soup, field_class):
+    section = soup.select_one(f'section.{field_class} .field-item')
+    if section and section.find('a'):
+        link = section.find('a')['href']
+        return get_id_from_link(link)
+    return None
 
 # Function to save data to CSV
 def save_to_csv(filename, columns, data_list):

@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-from utils import save_to_csv, get_text_from_field, get_id_from_field, get_link_from_field
+from utils import save_to_csv, get_text_from_table, get_id_from_table, get_link_from_table, get_text_from_section, get_id_from_section
 from navigator import navigate_with_session_handling
 
 # Function to scrape companies
@@ -16,38 +16,57 @@ def scrape_companies(driver):
 
     for row in rows:
         # Société
-        COMPANY_FIELD = 'views-field-title';
-        company_name = get_text_from_field(row, COMPANY_FIELD)
-        company_id = get_id_from_field(row, COMPANY_FIELD)
-        company_link = get_link_from_field(row, COMPANY_FIELD)
+        company_name = get_text_from_table(row, 'views-field-title')
+        company_id = get_id_from_table(row, 'views-field-title')
+        company_link = get_link_from_table(row, 'views-field-title')
 
-        # Ville
-        CITY_FIELD = 'views-field-field-ville';
-        city = get_text_from_field(row, CITY_FIELD)
+        # Visit company detail page and scrape more details
+        if company_link:
+            print(f'Scraping the company : {company_name}')
 
-        # Pays
-        COUNTRY_FIELD = 'views-field-field-pays';
-        country = get_text_from_field(row, COUNTRY_FIELD)
+            driver.get(f'https://gi-intranet.insa-lyon.fr{company_link}')
+            html = driver.page_source
+            soup = BeautifulSoup(html, 'html.parser')
 
-        # Site Web
-        WEBSITE_FIELD = 'views-field-field-site-web';
-        website = get_link_from_field(row, WEBSITE_FIELD)
+            # Adresse
+            address = get_text_from_section(soup, 'field-name-field-adresse')
 
-        # if company_link:
-        #     driver.get(f'https://gi-intranet.insa-lyon.fr{company_link}')
-        #     time.sleep(3)  # Adjust the time to wait for the page to load
-        #     company_html = driver.page_source
-        #     company_soup = BeautifulSoup(company_html, 'html.parser')
-        #     # Scrape additional company data from the linked page (if needed)
-        #     adress_tag = company_soup.select_one('section.field-name-field-adresse div.field-item')
-        #     if adress_tag:
-        #         adress = adress_tag.get_text().strip()
+            # Code postal
+            postal_code = get_text_from_section(soup, 'field-name-field-code-postal')
+            
+            # Ville
+            city = get_text_from_section(soup, 'field-name-field-ville')
 
-        # Store the data
-        data_list.append([company_id, company_name, city, country, website])
+            # Cedex 
+            cedex = get_text_from_section(soup, 'field-name-field-cedex')
 
+            # Pays
+            country = get_text_from_section(soup, 'field-name-field-pays')
 
-    return data_list, ['ID', 'Société', 'Ville', 'Pays', 'Site Web']
+            # Courriel
+            email = get_text_from_section(soup, 'field-name-field-courriel')
+
+            # Site Web
+            website = get_text_from_section(soup, 'field-name-field-site-web')
+
+            # Nom du dirigeant
+            leader = get_text_from_section(soup, 'field-name-field-nom-du-dirigeant')
+
+            # Secteur d'activité
+            activity = get_text_from_section(soup, 'field-name-field-secteur-d-activite2')
+
+            # Code NAF
+            naf_code = get_text_from_section(soup, 'field-name-field-code-naf')
+
+            company_details = [address, postal_code, city, cedex, country, email, website, leader, activity, naf_code]
+        else:
+            company_details = [None] * 10  # If no link, leave other details empty
+
+        # Combine data from the listing page with details page data
+        data_list.append([company_id, company_name] + company_details)
+
+    return data_list, ['ID', 'Société', 'Adresse', 'Code Postal', 'Ville', 'Cedex', 'Pays', 'Courriel', 'Site web', 'Nom Dirigeant', 'Secteur Activité', 'Code NAF']
+
 
 # Function to scrape sites
 def scrape_sites(driver):
@@ -62,29 +81,59 @@ def scrape_sites(driver):
     print(f'Scraping {len(rows)} sites...')
 
     for row in rows:
-        # Nom du site
-        SITE_FIELD = 'views-field-title';
-        site_name = get_text_from_field(row, SITE_FIELD)
-        site_id = get_id_from_field(row, SITE_FIELD)
-        site_link = get_link_from_field(row, SITE_FIELD)
+        # Site
+        site_name = get_text_from_table(row, 'views-field-title')
+        site_id = get_id_from_table(row, 'views-field-title')
+        site_link = get_link_from_table(row, 'views-field-title')
 
-        # Ville
-        CITY_FIELD = 'views-field-field-ville';
-        city = get_text_from_field(row, CITY_FIELD)
+        # Visit site detail page and scrape more details
+        if site_link:
+            print(f'Scraping the site : {site_name}')
 
-        # Pays
-        COUNTRY_FIELD = 'views-field-field-pays';
-        country = get_text_from_field(row, COUNTRY_FIELD)
+            driver.get(f'https://gi-intranet.insa-lyon.fr{site_link}')
+            html = driver.page_source
+            soup = BeautifulSoup(html, 'html.parser')
 
-        # Société
-        COMPANY_FIELD = 'views-field-field-societe';
-        company_name = get_text_from_field(row, COMPANY_FIELD)
-        company_id = get_id_from_field(row, COMPANY_FIELD)
+            # Adresse
+            address = get_text_from_section(soup, 'field-name-field-adresse')
+
+            # Code postal
+            postal_code = get_text_from_section(soup, 'field-name-field-code-postal')
+            
+            # Ville
+            city = get_text_from_section(soup, 'field-name-field-ville')
+
+            # Pays
+            country = get_text_from_section(soup, 'field-name-field-pays')
+
+            # Téléphone
+            phone = get_text_from_section(soup, 'field-name-field-telephone')
+
+            # Courriel
+            email = get_text_from_section(soup, 'field-name-field-courriel')
+
+            # Site Web
+            website = get_text_from_section(soup, 'field-name-field-site-web')
+
+            # Société
+            company = get_text_from_section(soup, 'field-name-field-societe')
+            company_id = get_id_from_section(soup, 'field-name-field-societe')
+
+            # Secteur d'activité
+            activity = get_text_from_section(soup, 'field-name-field-secteur-d-activite2')
+
+            # Code NAF
+            date_creation = get_text_from_section(soup, 'field-name-field-date-de-creation')
+
+            site_details = [address, postal_code, city, country, phone, email, website, company_id, company, activity, date_creation]
+        else:
+            site_details = [None] * 11  # If no link, leave other details empty
+
 
         # Store the data
-        data_list.append([site_id, site_name, city, country, company_id, company_name])
+        data_list.append([site_id, site_name] + site_details)
 
-    return data_list, ['ID', 'Site', 'Ville', 'Pays', 'ID Société', 'Société']
+    return data_list, ['ID', 'Site', 'Adresse', 'Code Postal', 'Ville', 'Pays', 'Téléphone', 'Courriel', 'Site Web', 'ID Société', 'Société', 'Secteur Activité', 'Date Création']
 
 # Function to scrape companies
 def scrape_contacts(driver):
@@ -99,67 +148,82 @@ def scrape_contacts(driver):
     print(f'Scraping {len(rows)} contacts...')
 
     for row in rows:
-        # Nom et prénom
-        CONTACT_FIELD = 'views-field-title';
-        contact_name = get_text_from_field(row, CONTACT_FIELD)
-        contact_id = get_id_from_field(row, CONTACT_FIELD)
-        contact_link = get_link_from_field(row, CONTACT_FIELD)
+        # Contact
+        contact_id = get_id_from_table(row, 'views-field-title')
+        contact_link = get_link_from_table(row, 'views-field-title')
 
-        # Site
-        SITE_FIELD = 'views-field-field-entreprise';
-        site_name = get_text_from_field(row, SITE_FIELD)
-        site_id = get_id_from_field(row, SITE_FIELD)
+        # Visit site contact page and scrape more details
+        if contact_link:
+            print(f'Scraping the contact : {contact_link}')
 
-        # Service
-        SERVICE_FIELD = 'views-field-field-service';
-        service = get_text_from_field(row, SERVICE_FIELD)
+            driver.get(f'https://gi-intranet.insa-lyon.fr{contact_link}')
+            html = driver.page_source
+            soup = BeautifulSoup(html, 'html.parser')
 
-        # Fonctions
-        FUNCTIONS_FIELD = 'views-field-field-fonctions';
-        functions = get_text_from_field(row, FUNCTIONS_FIELD)
+            # Titre
+            title = get_text_from_section(soup, 'field-name-field-titre')
 
-        # Courriel
-        EMAIL_FIELD = 'views-field-field-courriel';
-        email = get_text_from_field(row, EMAIL_FIELD)
+            # Nom
+            lastname = get_text_from_section(soup, 'field-name-field-nom')
+            
+            # Prénom
+            firstime = get_text_from_section(soup, 'field-name-field-prenom')
+
+            # Site
+            site = get_text_from_section(soup, 'field-name-field-entreprise')
+            site_id = get_id_from_section(soup, 'field-name-field-entreprise')
+
+            # Service
+            service = get_text_from_section(soup, 'field-name-field-service')
+
+            # Fonctions
+            functions = get_text_from_section(soup, 'field-name-field-fonctions')
+
+            # Courriel
+            email = get_text_from_section(soup, 'field-name-field-courriel')
+
+
+            contact_details = [lastname, firstime, title, site_id, site, service, functions, email]
+        else:
+            contact_details = [None] * 8  # If no link, leave other details empty
+
 
         # Store the data
-        data_list.append([contact_id, contact_name, site_id, site_name, service, functions, email])
+        data_list.append([contact_id] + contact_details)
 
-    return data_list, ['ID', 'Contact', 'ID Site', 'Site', 'Service', 'Fonctions', 'Courriel']
+    return data_list, ['ID', 'Nom', 'Prénom', 'Titre', 'ID Site', 'Site', 'Service', 'Fonctions', 'Courriel']
 
 # General function to scrape all pages, with scrape_page passed as an argument
 def scrape_all_pages(driver, page_info):
     page_name = page_info['name']
-    url = page_info['url']
+    base_url = page_info['url']
     scrape_function = page_info['scrape_function']
 
+    url = base_url
     data_list = []
-
-    if not navigate_with_session_handling(driver, url) or driver.current_url != url:
-        print(f"An error occured while accessing to the {page_name} page...")
-        return
-
     while True:
+
+        if not navigate_with_session_handling(driver, url) or driver.current_url != url:
+            print(f"An error occured while accessing to the {page_name} page...")
+            return
+        
+        # Get the "Next" button if exists
+        html = driver.page_source
+        soup = BeautifulSoup(html, 'html.parser')
+        next_button = soup.select_one('li.pager-next a')
+
         # Scrape the current page using the passed scrape_page method
         page_data_list, columns = scrape_function(driver)
         data_list += page_data_list
 
-        # Check if we're on the last page
-        html = driver.page_source
-        soup = BeautifulSoup(html, 'html.parser')
-        last_page_button = soup.select_one('li.pager-last')
-        if last_page_button is None:  # No "dernier" button means this is the last page
+        # No "Next" button means this is the last page
+        if next_button is None:
             print("Reached the last page.")
             break
 
-        # Find the "suivant" button to go to the next page
-        next_button = soup.select_one('li.pager-next a')
         if next_button:
-           # Navigate to the next page using the href attribute
             next_page_url = next_button['href']
-            driver.get(url + next_page_url)
-        else:
-            break  # No next button, stop the loop
+            url = base_url + next_page_url
 
     save_to_csv(f"scraped_{page_name.lower()}.csv", columns, data_list)
     
