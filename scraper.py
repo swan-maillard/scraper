@@ -180,19 +180,22 @@ def scrape_contacts(driver):
             # Fonctions
             functions = get_text_from_section(soup, 'field-name-field-fonctions')
 
+            # Téléphone
+            phone = get_text_from_section(soup, 'field-name-field-telephone')
+
             # Courriel
             email = get_text_from_section(soup, 'field-name-field-courriel')
 
 
-            contact_details = [lastname, firstime, title, site_id, site, service, functions, email]
+            contact_details = [lastname, firstime, title, site_id, site, service, functions, phone, email]
         else:
-            contact_details = [None] * 8  # If no link, leave other details empty
+            contact_details = [None] * 9  # If no link, leave other details empty
 
 
         # Store the data
         data_list.append([contact_id] + contact_details)
 
-    return data_list, ['ID', 'Nom', 'Prénom', 'Titre', 'ID Site', 'Site', 'Service', 'Fonctions', 'Courriel']
+    return data_list, ['ID', 'Nom', 'Prénom', 'Titre', 'ID Site', 'Site', 'Service', 'Fonctions', 'Téléphone', 'Courriel']
 
 # General function to scrape all pages, with scrape_page passed as an argument
 def scrape_all_pages(driver, page_info):
