@@ -149,12 +149,13 @@ def scrape_contacts(driver):
 
     for row in rows:
         # Contact
+        contact_name = get_text_from_table(row, 'views-field-title')
         contact_id = get_id_from_table(row, 'views-field-title')
         contact_link = get_link_from_table(row, 'views-field-title')
 
         # Visit site contact page and scrape more details
         if contact_link:
-            print(f'Scraping the contact : {contact_link}')
+            print(f'Scraping the contact : {contact_name}')
 
             driver.get(f'https://gi-intranet.insa-lyon.fr{contact_link}')
             html = driver.page_source
